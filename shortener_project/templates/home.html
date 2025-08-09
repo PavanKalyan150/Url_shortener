@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Django URL Shortener</title>
+</head>
+<body>
+    <h1>Django URL Shortener</h1>
+    <form id="shorten-form">
+        <input type="text" id="url" placeholder="Enter long URL" required>
+        <button type="submit">Shorten</button>
+    </form>
+    <div id="result"></div>
+    <h2>Recent Shortened URLs</h2>
+    <ul>
+        {% for url in urls %}
+        <li><a href="/{{ url.short_code }}" target="_blank">{{ url.short_code }}</a> → {{ url.long_url }} ({{ url.click_count }} clicks)</li>
+        {% empty %}
+        <li>No URLs yet.</li>
+        {% endfor %}
+    </ul>
+    <script>
+        document.getElementById('shorten-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const longUrl = document.getElementById('url').value;
+            const res = await fetch('/shorten/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: longUrl })
+            });
+            const data = await res.json();
+            document.getElementById('result').innerText = data.short_url || data.error;
+        });
+    </script>
+</body>
+</html>
